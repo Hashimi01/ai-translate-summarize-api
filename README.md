@@ -1,60 +1,60 @@
-# Qwen2.5-7B — API الترجمة والتخليص
+# Qwen2.5-7B — Translation & Summarization API
 
-API سريع ودقيق للترجمة والتخليص يعتمد على نموذج `Qwen2.5-7B-Instruct-Q4_K_M.gguf`  
-يدعم **العربية 🇸🇦** و **الفرنسية 🇫🇷** و **الإنجليزية 🇬🇧**
+A fast and accurate translation and summarization API based on the `Qwen2.5-7B-Instruct-Q4_K_M.gguf` model.
+Supports **Arabic 🇸🇦**, **French 🇫🇷**, and **English 🇬🇧**.
 
 ---
 
-## 📦 المتطلبات
+## 📦 Requirements
 
 - Docker + Docker Compose
-- RAM: **8 GB** كحد أدنى (16 GB موصى به)
-- ملف النموذج: `Qwen2.5-7B-Instruct-Q4_K_M.gguf`
+- RAM: **8 GB** minimum (16 GB recommended)
+- Model file: `Qwen2.5-7B-Instruct-Q4_K_M.gguf`
 
 ---
 
-## 🚀 التشغيل السريع
+## 🚀 Quick Start
 
-### 1. ضع النموذج في المجلد الصحيح
+### 1. Place the model in the correct directory
 
 ```bash
 mkdir -p models
 cp /path/to/Qwen2.5-7B-Instruct-Q4_K_M.gguf ./models/
 ```
 
-### 2. بناء وتشغيل الـ Container
+### 2. Build and run the Container
 
 ```bash
 docker compose up --build
 ```
 
-سيستغرق التحميل الأول **2–5 دقائق** حسب سرعة المعالج.
+The initial load will take **2–5 minutes** depending on your CPU speed.
 
-### 3. اختبار الـ API
+### 3. Test the API
 
 ```bash
-# فحص الصحة
+# Health Check
 curl http://localhost:8000/health
 
-# الوثائق التفاعلية
+# Interactive API Documentation (Swagger)
 open http://localhost:8000/docs
 ```
 
 ---
 
-## 📡 نقاط النهاية (Endpoints)
+## 📡 Endpoints
 
-### `POST /translate` — الترجمة
+### `POST /translate` — Translation
 
-**الحقول:**
+**Fields:**
 
-| الحقل | النوع | القيم المقبولة | الوصف |
-|-------|-------|---------------|-------|
-| `text` | string | — | النص المراد ترجمته |
-| `target_language` | string | `arabic` / `french` / `english` | اللغة الهدف |
-| `source_language` | string | `arabic` / `french` / `english` / `auto` | لغة المصدر (اختياري، افتراضي: `auto`) |
+| Field | Type | Accepted Values | Description |
+|-------|------|-----------------|-------------|
+| `text` | string | — | The text to translate |
+| `target_language` | string | `arabic` / `french` / `english` | The target language |
+| `source_language` | string | `arabic` / `french` / `english` / `auto` | The source language (optional, default: `auto`) |
 
-**مثال — ترجمة من الفرنسية إلى العربية:**
+**Example — Translating from French to Arabic:**
 
 ```bash
 curl -X POST http://localhost:8000/translate \
@@ -65,7 +65,7 @@ curl -X POST http://localhost:8000/translate \
   }'
 ```
 
-**الرد:**
+**Response:**
 
 ```json
 {
@@ -77,29 +77,29 @@ curl -X POST http://localhost:8000/translate \
 
 ---
 
-### `POST /summarize` — التخليص
+### `POST /summarize` — Summarization
 
-**الحقول:**
+**Fields:**
 
-| الحقل | النوع | القيم المقبولة | الوصف |
-|-------|-------|---------------|-------|
-| `text` | string | — | النص المراد تخليصه |
-| `language` | string | `arabic` / `french` / `english` / `same` | لغة الملخص (افتراضي: `same`) |
-| `length` | string | `short` / `medium` / `long` | طول الملخص (افتراضي: `medium`) |
+| Field | Type | Accepted Values | Description |
+|-------|------|-----------------|-------------|
+| `text` | string | — | The text to summarize |
+| `language` | string | `arabic` / `french` / `english` / `same` | The language of the summary (default: `same`) |
+| `length` | string | `short` / `medium` / `long` | The length of the summary (default: `medium`) |
 
-**مثال — تخليص نص عربي بالعربية:**
+**Example — Summarizing an Arabic text in Arabic:**
 
 ```bash
 curl -X POST http://localhost:8000/summarize \
   -H "Content-Type: application/json" \
   -d '{
-    "text": "النص الطويل هنا...",
+    "text": "Long text here...",
     "language": "same",
     "length": "short"
   }'
 ```
 
-**مثال — تخليص نص فرنسي بالعربية:**
+**Example — Summarizing a French text in Arabic:**
 
 ```bash
 curl -X POST http://localhost:8000/summarize \
@@ -113,18 +113,44 @@ curl -X POST http://localhost:8000/summarize \
 
 ---
 
-## ⚙️ ضبط الأداء
+## 🌍 Server Deployment
 
-عدّل هذه المتغيرات في `docker-compose.yml` حسب جهازك:
+Deploying this API to a remote server (like AWS, DigitalOcean, or RunPod) is extremely simple since it is Dockerized.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Hashimi01/ai-translate-summarize-api.git
+   cd ai-translate-summarize-api
+   ```
+
+2. **Download the model directly to the server:**
+   *(Servers usually have very fast internet, so this will take seconds instead of hours)*
+   ```bash
+   mkdir -p models
+   wget -O ./models/Qwen2.5-7B-Instruct-Q4_K_M.gguf https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m.gguf
+   ```
+
+3. **Run the API in the background:**
+   ```bash
+   docker compose up --build -d
+   ```
+
+Your API is now live and accessible at `http://YOUR_SERVER_IP:8000`.
+
+---
+
+## ⚙️ Performance Tuning
+
+Adjust these variables in `docker-compose.yml` according to your hardware:
 
 ```yaml
 environment:
-  LLAMA_THREADS: "4"        # عدد أنوية المعالج المخصصة
-  LLAMA_CTX_SIZE: "4096"    # حجم السياق (زد إلى 8192 إن كان لديك RAM كافٍ)
-  LLAMA_BATCH_SIZE: "512"   # حجم الدفعة للمعالجة
+  LLAMA_THREADS: "4"        # Number of CPU threads to allocate
+  LLAMA_CTX_SIZE: "4096"    # Context size (Increase to 8192 if you have enough RAM)
+  LLAMA_BATCH_SIZE: "512"   # Batch processing size
 ```
 
-### توصيات حسب الجهاز:
+### Hardware Recommendations:
 
 | RAM | THREADS | CTX_SIZE | BATCH_SIZE |
 |-----|---------|----------|------------|
@@ -134,26 +160,26 @@ environment:
 
 ---
 
-## 🛡️ منع الهلوسة
+## 🛡️ Preventing Hallucination
 
-تم ضبط النموذج بعناية لتقليل الهلوسة:
+The model is carefully tuned to minimize hallucination:
 
-- `temperature: 0.1` — إجابات حتمية وموثوقة
-- `repeat_penalty: 1.1` — يمنع التكرار
-- تعليمات صارمة في الـ System Prompt تمنع إضافة محتوى غير موجود في النص الأصلي
-- النموذج مُوجَّه لإخراج الترجمة/الملخص **فقط** بدون مقدمات أو تعليقات
+- `temperature: 0.1` — Deterministic and reliable answers.
+- `repeat_penalty: 1.1` — Prevents repetition.
+- Strict System Prompt instructions prevent adding content not found in the original text.
+- The model is instructed to output the translation/summary **ONLY**, without preambles or comments.
 
 ---
 
-## 🐛 استكشاف الأخطاء
+## 🐛 Troubleshooting
 
 ```bash
-# عرض سجلات الحاوية
+# View container logs
 docker compose logs -f
 
-# إعادة التشغيل
+# Restart container
 docker compose restart
 
-# إيقاف كامل
+# Full stop and remove
 docker compose down
 ```
