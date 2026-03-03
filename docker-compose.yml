@@ -1,0 +1,31 @@
+services:
+  qwen-api:
+    build: .
+    image: qwen25-api:latest
+    container_name: qwen-translation-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # ⚠️  Change this path to where your .gguf file lives
+      - ./models:/models:ro
+    environment:
+      MODEL_PATH: /models/Qwen2.5-7B-Instruct-Q4_K_M.gguf
+      LLAMA_CTX_SIZE: "4096"       # Increase to 8192 if you have RAM
+      LLAMA_THREADS: "4"           # Set to your CPU core count
+      LLAMA_BATCH_SIZE: "512"
+      REQUEST_TIMEOUT: "120"
+    restart: unless-stopped
+    # Give the model time to load before health checks start
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    # Resource limits (adjust to your machine)
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 6G
